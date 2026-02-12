@@ -4,6 +4,10 @@ project(dyno_viewer LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(MSVC)
+    add_definitions(-DNOMINMAX -D_CRT_SECURE_NO_WARNINGS)
+endif()
+
 # ── Dependencies via FetchContent ────────────────────────────────────────
 include(FetchContent)
 
