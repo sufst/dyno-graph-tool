@@ -2,6 +2,10 @@
 
 viewer for dynapro dynarun v3 `.Dpr` files. parses the format, computes corrected wheel torque and power from roller inertia + angular acceleration + friction poly.
 
+## image
+
+![image](img/image.png)
+
 ## what it does
 
 - multiple graphs, right-click any axis to pick a series
