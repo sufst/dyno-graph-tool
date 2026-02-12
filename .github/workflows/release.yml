@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: linux
+            artifact: dyno_viewer
+          - os: windows-latest
+            name: windows
+            artifact: dyno_viewer.exe
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install deps (linux)
+        if: matrix.name == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxkbcommon-dev libwayland-dev
+
+      - name: configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: build
+        run: cmake --build build --config Release -j
+
+      - name: package (linux)
+        if: matrix.name == 'linux'
+        run: |
+          cd build
+          tar czf ../dyno_viewer-linux-x64.tar.gz dyno_viewer
+
+      - name: package (windows)
+        if: matrix.name == 'windows'
+        shell: bash
+        run: |
+          cd build/Release || cd build
+          7z a ../../dyno_viewer-windows-x64.zip dyno_viewer.exe
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dyno_viewer-${{ matrix.name }}
+          path: dyno_viewer-${{ matrix.name }}*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dyno_viewer-linux-x64.tar.gz
+            dyno_viewer-windows-x64.zip

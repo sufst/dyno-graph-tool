@@ -1,0 +1,6 @@
+build/
+imgui.ini
+.cache/
+.vscode/
+*.o
+*.a
